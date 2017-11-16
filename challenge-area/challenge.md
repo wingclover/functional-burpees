@@ -30,9 +30,9 @@ These are a series of **independent** exercises that are aimed at enforcing comm
 
 A successful answer, will be one that solves the challenge asked, while not mutating the original JSON returned from the `fetch` request.
 
-1. Iterate over the results array, `replace` &quot; with actual quotes. 
+1. Iterate over the results array, any questions that have & quot; in the text, `replace` that with actual quotes. 
 
-  _HINT_: `/&quot;, '\"'/g` is the matcher
+  _HINT_: (`/&quot;, '\"'/g`) is the matcher
 
 2. The results array should only contain easy questions
 
