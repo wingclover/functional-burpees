@@ -1,51 +1,58 @@
-//Good luck! Maybe start by making that fetch request ;)
+//Good luck! Maybe start by making that fetch request ;) https://codepen.io/model3volution/pen/aVVrrY
 const fetch = require('isomorphic-fetch');
-fetch("https://opentdb.com/api.php?amount=10&category=18")
-.then(res=>res.json())
-.then(data=>logResults(data.results));
+const TRIVIA_URL = "https://opentdb.com/api.php?amount=10&category=18";
 
-function logResults(results){
+const getQuestions = (url)=>{
+    return fetch(url)
+    .then(res=>res.json())
+    .then(data=>data.results);
+};
 
-    const replaced = results.map(result=>{result.question = result.question.replace(/&quot;/g, '"'); return result;});
-    console.log("Quotes replaced:");
-    console.log(replaced);
-    console.log("\n");
-
-    const filtered = results.filter(result=>result.difficulty=="easy");
-    console.log("Only easy questons:");
-    console.log(filtered);
-    console.log("\n");
-    
-    const sorted = [...results].sort((a,b)=>{
-        if (a.difficulty > b.difficulty) {return 1}
-        else if (a.difficulty < b.difficulty){return -1}
-        else return 0
+const replaceQuotes = questions => {
+    return questions.map(result=>{
+        result.question = result.question.replace(/&quot;/g, '"'); 
+        return result;
     });
-    console.log("Sorted by difficulty:");
-    console.log(sorted);
-    console.log("\n");
-    
-    const subtotal = results.reduce((acc,cur)=>{
+};
+
+const filterDifficulty = (questions, difficulty = "easy") => {
+    return questions.filter(
+        result=>result.difficulty==difficulty);
+};
+
+const sortDifficulty = questions => {
+    return [...questions].sort((a, b) => a.difficulty > b.difficulty ? 1: -1);
+};
+
+const tally = questions => {
+    return questions.reduce((acc,cur)=>{
         if (cur.difficulty in acc){
             acc[cur.difficulty] += 1;
         }
         else {acc[cur.difficulty] = 1;}
         return acc;
-    },{})
-    console.log("Difficulty counts:");
-    console.log(subtotal);
-    console.log("\n");
-    
-    const allComputers = results.every(result=>result.category == 'Science: Computers');
-    console.log("All in Science: Computers category?");
-    console.log(allComputers);
-    console.log("\n");
-    
-    const mediumByType = results.filter(result=>result.difficulty == "medium").sort((a,b)=>{
-        if (a.type > b.type) {return 1}
-        else if (a.type < b.type){return -1}
-        else return 0
-    });
-    console.log("Medium questions sorted by type:");
-    console.log(mediumByType);
-}
+    },{});
+};
+
+const ifAllComputers = (questions, category = 'Science: Computers') => {
+    return questions.every(result => result.category == category);
+};
+
+const sortMediumByType = questions => {
+    return questions.filter(result=>result.difficulty == "medium")
+    .sort((a,b) => a.type > b.type ? 1: -1);
+};
+
+const actualQuotes = getQuestions(TRIVIA_URL).then(replaceQuotes);
+
+const easyQuestions = getQuestions(TRIVIA_URL).then(filterDifficulty);
+
+const sortedByDifficulty = getQuestions(TRIVIA_URL).then(sortDifficulty);
+
+const countByDifficulty = getQuestions(TRIVIA_URL).then(tally);
+
+const allComputers = getQuestions(TRIVIA_URL).then(ifAllComputers);
+
+const sortedMedium = getQuestions(TRIVIA_URL).then(sortMediumByType);
+
+// To check from console, do: actualQuotes.then(data => console.log(data));
